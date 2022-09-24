@@ -4,20 +4,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 public class Foo {
-    Semaphore semaphore = new Semaphore(1);
-    Semaphore semaphore1 = new Semaphore(1);
-
-    Foo() {
-        try {
-            semaphore.acquire();
-            semaphore1.acquire();
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted: " + e);
-        }
-    }
+    Semaphore semaphore = new Semaphore(0);
+    Semaphore semaphore1 = new Semaphore(0);
 
     public void first(Runnable r) {
         r.run();
+        System.out.print("first");
         semaphore.release();
     }
 
@@ -25,9 +17,10 @@ public class Foo {
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
-            System.out.println("Interrupted: " + e);
+            System.out.println("Blocking: " + e);
         }
         r.run();
+        System.out.print("second");
         semaphore1.release();
     }
 
@@ -35,9 +28,10 @@ public class Foo {
         try {
             semaphore1.acquire();
         } catch (InterruptedException e) {
-            System.out.println("Interrupted: " + e);
+            System.out.println("Blocking: " + e);
         }
         r.run();
+        System.out.print("third");
     }
 }
 
@@ -46,15 +40,15 @@ class Check {
         Foo foo = new Foo();
 
         CompletableFuture.runAsync(() -> {
-            foo.second(new Thread(() -> System.out.print("second")));
+            foo.second(new Thread());
         });
 
         CompletableFuture.runAsync(() -> {
-            foo.first(new Thread(() -> System.out.print("first")));
+            foo.first(new Thread());
         });
 
         CompletableFuture.runAsync(() -> {
-            foo.third(new Thread(() -> System.out.print("third")));
+            foo.third(new Thread());
         });
 
         try {
