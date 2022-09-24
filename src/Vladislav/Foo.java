@@ -4,13 +4,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
 public class Foo {
-    Semaphore semaphore;
-    Semaphore semaphore1;
+    Semaphore semaphore = new Semaphore(1);
+    Semaphore semaphore1 = new Semaphore(1);
 
-    Foo(Semaphore semaphore, Semaphore semaphore1) {
-        this.semaphore = semaphore;
-        this.semaphore1 = semaphore1;
-
+    Foo() {
         try {
             semaphore.acquire();
             semaphore1.acquire();
@@ -18,6 +15,7 @@ public class Foo {
             System.out.println("Interrupted: " + e);
         }
     }
+
     public void first(Runnable r) {
         r.run();
         semaphore.release();
@@ -43,42 +41,28 @@ public class Foo {
     }
 }
 
-class Check{
+class Check {
     public static void main(String[] args) {
-        Semaphore semaphore = new Semaphore(1);
-        Semaphore semaphore0 = new Semaphore(1);
-
-        Foo foo = new Foo(semaphore, semaphore0);
-
-//        foo.second(new Th("second"));
-//        foo.first(new Th("first"));
-//        foo.third(new Th("third"));
+        Foo foo = new Foo();
 
         CompletableFuture.runAsync(() -> {
-            foo.second(new Thread(() -> System.out.println("second")));
+            foo.second(new Thread(() -> System.out.print("second")));
         });
 
         CompletableFuture.runAsync(() -> {
-            foo.first(new Thread(() -> System.out.println("first")));
+            foo.first(new Thread(() -> System.out.print("first")));
         });
 
         CompletableFuture.runAsync(() -> {
-            foo.third(new Thread(() -> System.out.println("third")));
+            foo.third(new Thread(() -> System.out.print("third")));
         });
 
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
-//class Th implements Runnable {
-//    Thread thread;
-//    String message;
-//
-//    Th (String message) {
-//        new Thread(() -> System.out.print(message)).start();
-//    }
-//
-//    @Override
-//    public void run() {
-//    }
-//}
 
