@@ -8,7 +8,6 @@ public class Foo {
     Semaphore semaphore1 = new Semaphore(0);
 
     public void first(Runnable r) {
-        r.run();
         System.out.print("first");
         semaphore.release();
     }
@@ -19,7 +18,6 @@ public class Foo {
         } catch (InterruptedException e) {
             System.out.println("Blocking: " + e);
         }
-        r.run();
         System.out.print("second");
         semaphore1.release();
     }
@@ -30,7 +28,6 @@ public class Foo {
         } catch (InterruptedException e) {
             System.out.println("Blocking: " + e);
         }
-        r.run();
         System.out.print("third");
     }
 }
